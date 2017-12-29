@@ -20,7 +20,8 @@
         ["NS", "S", "S", "NS", "NS", "NS", "NS", "NES", "NESW", "SW", "ES", "SW", "ES", "NEW", "NSW", "NS"],
         ["NES", "NESW", "NESW", "NESW", "NESW", "NESW", "NESW", "NSW", "NS", "NES", "NSW", "NES", "NSW", "ES", "NSW", "NS"],
         ["N", "N", "N", "N", "N", "N", "N", "NE", "NEW", "NW", "NE", "NW", "NE", "NW", "NE", "NW"]
-     ];
+     ];   
+     
     
     const directions = ["N","S","E","W"];
     const mazeStartDim = 2;
@@ -28,7 +29,28 @@
     const gridRowCount = mazeJSON.length;
     var rectHeight = canvas.height/gridRowCount;
     var rectWidth = canvas.width/gridColumnCount;
+    
+    //Key Variables
+    var rightPressed = false;
+    var leftPressed = false;
+    var upPressed = false;
+    var downPressed = false;
+    //Mouse
+    var mouse = new Image();
+    var mouseX = 0;
+    var mouseY = 0;
+    var mouseLoaded = false;
+    mouse.onload = function(){
+        ctx.drawImage(mouse, mouseX, mouseY);
+        mouseLoaded = true;
+    }
 
+    mouse.src = "assets/images/mouse_20x20.png";
+
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    //Grid
     var grid = [];
     for(let r = 0; r<gridRowCount; r++){
         grid[r] = [];
@@ -44,70 +66,104 @@
         }
     }
 
-function drawMaze(){
-    for (let r = 0; r< gridRowCount; r++){
-        for(let c = 0; c< gridRowCount; c++){
-            var currentGrid = grid[r][c];
-            
-            var wallDirections = [];
-            for(let i = 0; i<directions.length; i++){
-                if (currentGrid.openings.indexOf(directions[i]) === -1){
-                    wallDirections.push(directions[i]);
+    function keyDownHandler(e){
+        switch(e.keyCode){
+            case 38:
+                upPressed = true;
+                break;
+            case 40:
+                downPressed = true;
+                break;
+            case 39:
+                rightPressed = true;
+                break;
+            case 37:
+                leftPressed = true;
+                break;
+        }
+    }
+    function keyUpHandler(e){
+        console.log("keyup");
+        switch(e.keyCode){
+            case 38:
+                upPressed = false;
+                break;
+            case 40:
+                downPressed = false;
+                break;
+            case 39:
+                rightPressed = false;
+                break;
+            case 37:
+                leftPressed = false;
+                break;
+        }
+    }
+    function drawMaze(){
+        for (let r = 0; r< gridRowCount; r++){
+            for(let c = 0; c< gridRowCount; c++){
+                var currentGrid = grid[r][c];
+                
+                var wallDirections = [];
+                for(let i = 0; i<directions.length; i++){
+                    if (currentGrid.openings.indexOf(directions[i]) === -1){
+                        wallDirections.push(directions[i]);
+                    }
+                }
+
+                for (let j = 0; j<wallDirections.length; j++){
+                    ctx.beginPath();
+                    switch(wallDirections[j]) {
+                        case "N":
+                            ctx.moveTo(currentGrid.x, currentGrid.y);
+                            ctx.lineTo(currentGrid.x + rectWidth, currentGrid.y);
+                            break;
+                        case "S":
+                            var blCornerY = currentGrid.y + rectHeight; 
+                            ctx.moveTo(currentGrid.x, blCornerY);
+                            ctx.lineTo(currentGrid.x + rectWidth, blCornerY);
+                            break;
+                        case "E":
+                            var trCornerX = currentGrid.x + rectWidth;
+                            ctx.moveTo(trCornerX, currentGrid.y);
+                            ctx.lineTo(trCornerX, currentGrid.y + rectHeight);
+                            break;
+                        case "W":
+                            var blCornerY = currentGrid.y + rectHeight; 
+                            ctx.moveTo(currentGrid.x, currentGrid.y);
+                            ctx.lineTo(currentGrid.x, blCornerY);
+                            break;
+                    }
+                    ctx.stroke();
+                    ctx.closePath();
                 }
             }
-
-            for (let j = 0; j<wallDirections.length; j++){
-                switch(wallDirections[j]) {
-                    case "N":
-                        ctx.beginPath();
-                        ctx.moveTo(currentGrid.x, currentGrid.y);
-                        ctx.lineTo(currentGrid.x + rectWidth, currentGrid.y);
-                        ctx.stroke();
-                        ctx.closePath();
-                        break;
-                    case "S":
-                        var blCornerY = currentGrid.y + rectHeight; 
-                        ctx.beginPath();
-                        ctx.moveTo(currentGrid.x, blCornerY);
-                        ctx.lineTo(currentGrid.x + rectWidth, blCornerY);
-                        ctx.stroke();
-                        ctx.closePath();
-                        break;
-                    case "E":
-                        var trCornerX = currentGrid.x + rectWidth;
-                        ctx.beginPath();
-                        ctx.moveTo(trCornerX, currentGrid.y);
-                        ctx.lineTo(trCornerX, currentGrid.y + rectHeight);
-                        ctx.stroke();
-                        ctx.closePath();
-                        break;
-                    case "W":
-                        var blCornerY = currentGrid.y + rectHeight; 
-                        ctx.beginPath();
-                        ctx.moveTo(currentGrid.x, currentGrid.y);
-                        ctx.lineTo(currentGrid.x, blCornerY);
-                        ctx.stroke();
-                        ctx.closePath();
-                        break;
-                }
-            }
-
-            // ctx.beginPath();
-            // ctx.rect(grid[c][r].x,grid[c][r].y,rectWidth,rectHeight);
-            // ctx.strokeStyle = "black";
-            // ctx.stroke();
-            // ctx.closePath();
         }
     }
 
-}
+    function draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawMaze();
+        if (mouseLoaded){
+            ctx.drawImage(mouse, mouseX, mouseY);
+        }
+        if(downPressed && mouseY < canvas.height-mouse.height){
+            mouseY +=2;
+        }
+        if(upPressed && mouseY > 0){
+            mouseY -=2;
+        }
+        if(rightPressed && mouseX <canvas.width-mouse.width){
+            mouseX +=2;
+        }
+        if(leftPressed && mouseX > 0){
+            mouseX -=2;
+        }
+       
+        requestAnimationFrame(draw);
 
-function draw(){
-    drawMaze();
+    }
 
-
-}
-
-draw();
+    draw();
 
 // });
