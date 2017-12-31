@@ -47,10 +47,10 @@
 
     mouse.src = "assets/images/mouse_20x20.png";
 
-    document.addEventListener("keydown", keyDownHandler, false);
+    // document.addEventListener("keydown", keyDownHandler, false);
     document.addEventListener("keyup", keyUpHandler, false);
 
-    //Grid
+    //Grid array
     var grid = [];
     for(let r = 0; r<gridRowCount; r++){
         grid[r] = [];
@@ -66,39 +66,33 @@
         }
     }
 
-    function keyDownHandler(e){
-        switch(e.keyCode){
-            case 38:
-                upPressed = true;
-                break;
-            case 40:
-                downPressed = true;
-                break;
-            case 39:
-                rightPressed = true;
-                break;
-            case 37:
-                leftPressed = true;
-                break;
-        }
-    }
+
     function keyUpHandler(e){
-        console.log("keyup");
         switch(e.keyCode){
             case 38:
-                upPressed = false;
+                if(mouseY - rectHeight >= 0){
+                    mouseY -= rectHeight;
+                }
                 break;
             case 40:
-                downPressed = false;
+                if(mouseY + rectHeight < canvas.height){
+                    mouseY += rectHeight;
+                }
                 break;
             case 39:
-                rightPressed = false;
+                if(mouseX + rectWidth < canvas.width){
+                    mouseX += rectWidth;
+                }
                 break;
             case 37:
-                leftPressed = false;
+                if(mouseX - rectWidth >= 0){
+                    mouseX -= rectWidth;
+                }
                 break;
         }
     }
+
+
     function drawMaze(){
         for (let r = 0; r< gridRowCount; r++){
             for(let c = 0; c< gridRowCount; c++){
@@ -147,18 +141,7 @@
         if (mouseLoaded){
             ctx.drawImage(mouse, mouseX, mouseY);
         }
-        if(downPressed && mouseY < canvas.height-mouse.height){
-            mouseY +=2;
-        }
-        if(upPressed && mouseY > 0){
-            mouseY -=2;
-        }
-        if(rightPressed && mouseX <canvas.width-mouse.width){
-            mouseX +=2;
-        }
-        if(leftPressed && mouseX > 0){
-            mouseX -=2;
-        }
+
        
         requestAnimationFrame(draw);
 
