@@ -1,6 +1,6 @@
 // document.addEventListener("DOMContentLoaded", function(event) { 
-    var canvas = document.getElementById("myCanvas");
-    var ctx = canvas.getContext("2d");
+    let canvas = document.getElementById("myCanvas");
+    let ctx = canvas.getContext("2d");
 
     //Maze Consts
     const mazeJSON = [
@@ -27,36 +27,26 @@
     const mazeStartDim = 2;
     const gridColumnCount = mazeJSON[0].length;
     const gridRowCount = mazeJSON.length;
-    var rectHeight = canvas.height/gridRowCount;
-    var rectWidth = canvas.width/gridColumnCount;
+    let rectHeight = canvas.height/gridRowCount;
+    let rectWidth = canvas.width/gridColumnCount;
     
-    //Key Variables
-    var rightPressed = false;
-    var leftPressed = false;
-    var upPressed = false;
-    var downPressed = false;
     //Mouse
-    var mouse = new Image();
-    var mouseX = 0;
-    var mouseY = 0;
-    var mouseLoaded = false;
-    mouse.onload = function(){
-        ctx.drawImage(mouse, mouseX, mouseY);
-        mouseLoaded = true;
+    var mouse = {
+        img: new Image(),
+        x: 0,
+        y: 0,
+        facing: "S"
     }
 
-    mouse.src = "assets/images/mouse_20x20.png";
-
-    // document.addEventListener("keydown", keyDownHandler, false);
-    document.addEventListener("keyup", keyUpHandler, false);
+    mouse.img.src = "assets/images/mouse_20x20.png";
 
     //Grid array
-    var grid = [];
+    let grid = [];
     for(let r = 0; r<gridRowCount; r++){
         grid[r] = [];
         for(let c = 0; c<gridRowCount; c++){
-            var gridX = (c*(rectWidth));
-            var gridY = (r*(rectHeight));
+            let gridX = (c*(rectWidth));
+            let gridY = (r*(rectHeight));
             
             grid[r][c] = {  
                         x:gridX, 
@@ -66,45 +56,72 @@
         }
     }
 
-
-    function keyUpHandler(e){
+    mouse.faceN = () => {
+        console.log("Face north!");
+        mouse.facing = "N";
+    }
+    mouse.faceS = () => {
+        console.log("Face south!");
+        mouse.facing = "S";
+    }
+    mouse.faceE = () => {
+        console.log("Face east!");
+        mouse.facing = "E";
+    }
+    mouse.faceW = () => {
+        console.log("Face west!");
+        mouse.facing = "W";
+    }
+    var keyUpHandler = (e) =>{
         switch(e.keyCode){
-            case 38:
-                if(mouseY - rectHeight >= 0){
-                    mouseY -= rectHeight;
-                }
+            case 38: //UP
+                mouse.faceN();
                 break;
-            case 40:
-                if(mouseY + rectHeight < canvas.height){
-                    mouseY += rectHeight;
-                }
+            case 40: //DOWN
+                mouse.faceS();
                 break;
-            case 39:
-                if(mouseX + rectWidth < canvas.width){
-                    mouseX += rectWidth;
-                }
+            case 39: //RIGHT
+                mouse.faceE();
                 break;
-            case 37:
-                if(mouseX - rectWidth >= 0){
-                    mouseX -= rectWidth;
-                }
+            case 37: //LEFT
+                mouse.faceW();
+                break;
+            case 32: //SPACE
+                moveForward();
+                break;
+        }
+    }
+
+    document.addEventListener("keyup", keyUpHandler, true);
+
+    var moveForward = () =>{
+        switch(mouse.facing){
+            case "N":
+                break;
+            case "S":
+                break;
+            case "E":
+                break;
+            case "W":
                 break;
         }
     }
 
 
-    function drawMaze(){
+
+    var drawMaze = () => {
         for (let r = 0; r< gridRowCount; r++){
             for(let c = 0; c< gridRowCount; c++){
-                var currentGrid = grid[r][c];
                 
-                var wallDirections = [];
+                let currentGrid = grid[r][c];
+                let wallDirections = [];
+
+                //For each index of the array, get the directions where there is a wall.
                 for(let i = 0; i<directions.length; i++){
                     if (currentGrid.openings.indexOf(directions[i]) === -1){
                         wallDirections.push(directions[i]);
                     }
                 }
-
                 for (let j = 0; j<wallDirections.length; j++){
                     ctx.beginPath();
                     switch(wallDirections[j]) {
@@ -135,18 +152,13 @@
         }
     }
 
-    function draw(){
+    var draw = () =>{
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze();
-        if (mouseLoaded){
-            ctx.drawImage(mouse, mouseX, mouseY);
-        }
-
-       
+        ctx.drawImage(mouse.img, mouse.x, mouse.y);
         requestAnimationFrame(draw);
 
     }
 
-    draw();
-
+    mouse.img.onload = draw;
 // });
