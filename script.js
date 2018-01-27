@@ -1,4 +1,4 @@
-// document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", function(event) { 
     let canvas = document.getElementById("myCanvas");
     let ctx = canvas.getContext("2d");
 
@@ -27,18 +27,27 @@
     const mazeStartDim = 2;
     const gridColumnCount = mazeJSON[0].length;
     const gridRowCount = mazeJSON.length;
+    const mousePadding = 3;
     let rectHeight = canvas.height/gridRowCount;
     let rectWidth = canvas.width/gridColumnCount;
     
     //Mouse
-    var mouse = {
-        img: new Image(),
-        x: 0,
-        y: 0,
+    let mouse = {
+        img_s: new Image(),
+        img_n: new Image(),
+        img_e: new Image(),
+        img_w: new Image(),
+        x: 0 + mousePadding,
+        y: 0 + mousePadding,
         facing: "S"
     }
-
-    mouse.img.src = "assets/images/mouse_20x20.png";
+    function init(){
+        mouse.img_s.src = "assets/images/mouse_20x20_down.png";
+        mouse.img_n.src = "assets/images/mouse_20x20_up.png";
+        mouse.img_e.src = "assets/images/mouse_20x20_right.png";
+        mouse.img_w.src = "assets/images/mouse_20x20_left.png";
+        window.requestAnimationFrame(draw);
+    }
 
     //Grid array
     let grid = [];
@@ -53,6 +62,24 @@
                         y:gridY,
                         openings: mazeJSON[r][c]
                     }; 
+        }
+    }
+
+
+    var moveForward = () =>{
+        switch(mouse.facing){
+            case "N":
+                mouse.y -= rectHeight;
+                break;
+            case "S":
+                mouse.y += rectHeight;
+                break;
+            case "E":
+                mouse.x += rectWidth;
+                break;
+            case "W":
+                mouse.x -= rectHeight;
+                break;
         }
     }
 
@@ -92,22 +119,28 @@
         }
     }
 
-    document.addEventListener("keyup", keyUpHandler, true);
 
-    var moveForward = () =>{
+
+    var drawMouse = () =>{
         switch(mouse.facing){
             case "N":
+                ctx.drawImage(mouse.img_n, mouse.x, mouse.y);              
                 break;
             case "S":
+                ctx.drawImage(mouse.img_s, mouse.x, mouse.y); 
                 break;
             case "E":
+                ctx.drawImage(mouse.img_e, mouse.x, mouse.y); 
+                // mouse.img.src = "assets/images/mouse_20x20.png";
                 break;
             case "W":
+                ctx.drawImage(mouse.img_w, mouse.x, mouse.y); 
+                // mouse.img.src = "assets/images/mouse_20x20_left.png";
                 break;
         }
+        
     }
-
-
+    document.addEventListener("keyup", keyUpHandler, true);
 
     var drawMaze = () => {
         for (let r = 0; r< gridRowCount; r++){
@@ -155,10 +188,10 @@
     var draw = () =>{
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze();
-        ctx.drawImage(mouse.img, mouse.x, mouse.y);
-        requestAnimationFrame(draw);
-
+        drawMouse();
+        window.requestAnimationFrame(draw);
     }
+   
+    init();
+});
 
-    mouse.img.onload = draw;
-// });
