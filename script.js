@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         y: 0 + mousePadding,
         facing: "S"
     }
-    function init(){
+    let init = () =>{
         mouse.img_s.src = "assets/images/mouse_20x20_down.png";
         mouse.img_n.src = "assets/images/mouse_20x20_up.png";
         mouse.img_e.src = "assets/images/mouse_20x20_right.png";
