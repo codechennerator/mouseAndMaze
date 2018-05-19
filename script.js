@@ -1,7 +1,7 @@
-document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", (event) => { 
     let canvas = document.getElementById("myCanvas");
     let ctx = canvas.getContext("2d");
-
+    let searchingInterval; //Will be the timer interval when enter is hit.
     //Maze Consts
     const mazeJSON = [
         ["ES", "SW", "ES", "SW", "ES", "SW", "ES", "SW", "S", "S", "ES", "ESW", "W", "ES", "EW", "SW"],
@@ -39,7 +39,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
         img_w: new Image(),
         x: 0 + mousePadding,
         y: 0 + mousePadding,
-        facing: "S"
+        facing: "S",
+        trackX: 0,
+        trackY: 0,
+        goal: false
     }
     let init = () =>{
         mouse.img_s.src = "assets/images/mouse_20x20_down.png";
@@ -64,64 +67,131 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     }; 
         }
     }
-
-
-    var moveForward = () =>{
-        switch(mouse.facing){
-            case "N":
-                mouse.y -= rectHeight;
-                break;
-            case "S":
-                mouse.y += rectHeight;
-                break;
-            case "E":
-                mouse.x += rectWidth;
-                break;
-            case "W":
-                mouse.x -= rectHeight;
-                break;
-        }
-    }
-
     mouse.faceN = () => {
-        console.log("Face north!");
         mouse.facing = "N";
     }
     mouse.faceS = () => {
-        console.log("Face south!");
         mouse.facing = "S";
     }
     mouse.faceE = () => {
-        console.log("Face east!");
         mouse.facing = "E";
     }
     mouse.faceW = () => {
-        console.log("Face west!");
         mouse.facing = "W";
     }
-    var keyUpHandler = (e) =>{
-        switch(e.keyCode){
-            case 38: //UP
-                mouse.faceN();
+
+    /**Movement Functions */
+    const moveForward = () =>{
+        switch(mouse.facing){
+            case "N":
+                mouse.y -= rectHeight;
+                mouse.trackY -= 1;
                 break;
-            case 40: //DOWN
-                mouse.faceS();
+            case "S":
+                mouse.y += rectHeight;
+                mouse.trackY += 1;
                 break;
-            case 39: //RIGHT
-                mouse.faceE();
+            case "E":
+                mouse.x += rectWidth;
+                mouse.trackX += 1;
                 break;
-            case 37: //LEFT
-                mouse.faceW();
-                break;
-            case 32: //SPACE
-                moveForward();
+            case "W":
+                mouse.x -= rectHeight;
+                mouse.trackX -= 1;
                 break;
         }
     }
+    const prepMoveForward = (mouseLocation) => {
+        if (mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
+            moveForward();
+        } 
+    }
+    const turnRight = () =>{
+        switch(mouse.facing){
+            case "N":
+                mouse.faceE();
+                break;
+            case "S":
+                mouse.faceW();
+                break;
+            case "E":
+                mouse.faceS();
+                break;
+            case "W":
+                mouse.faceN();
+                break;
+            }
+    }
+    const checkTurnRight = (mouseLocation) =>{
+        switch(mouse.facing){
+            case "N":
+                if(mouseLocation.openings.indexOf('E') >= 0){
+                    mouse.faceE();
+                }
+                break;
+            case "S":
+                if(mouseLocation.openings.indexOf('W') >= 0){
+                    mouse.faceW();
+                }
+                break;
+            case "E":
+                if(mouseLocation.openings.indexOf('S') >= 0){
+                    mouse.faceS();
+                }
+                break;
+            case "W":
+                if(mouseLocation.openings.indexOf('N') >= 0){
+                    mouse.faceN();
+                }
+                break;
+        }
+        prepMoveForward(mouseLocation);
+    }
+    const rightAlgo = () =>{
+        clearInterval(searchingInterval);
+        searchingInterval = setInterval(() =>{
+            let mouseLocation = grid[mouse.trackY][mouse.trackX];
+            console.log(mouseLocation);
+            if(mouseLocation.openings.indexOf(mouse.facing) >= 0){
+                checkTurnRight(mouseLocation); 
+            }else if(mouseLocation.openings.indexOf(mouse.facing) < 0){
+                turnRight();
+            }else{
+                prepMoveForward(mouseLocation);
+            }
+            
+        }, 2);
+    }
+
+    const keyUpHandler = (e) =>{
+        switch(e.keyCode){
+            // case 38: //UP
+            //     mouse.faceN();
+            //     break;
+            // case 40: //DOWN
+            //     mouse.faceS();
+            //     break;
+            // case 39: //RIGHT
+            //     mouse.faceE();
+            //     break;
+            // case 37: //LEFT
+            //     mouse.faceW();
+            //     break;
+            // case 32: //SPACE
+            //     prepMoveForward();
+            //     break;
+            case 8:
+                clearInterval(searchingInterval);
+                break;
+            case 13:
+                rightAlgo();
+                break;
+        }
+    }
+    document.addEventListener("keyup", keyUpHandler, true);
 
 
-
-    var drawMouse = () =>{
+    const drawMouse = () =>{
         switch(mouse.facing){
             case "N":
                 ctx.drawImage(mouse.img_n, mouse.x, mouse.y);              
@@ -131,18 +201,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 break;
             case "E":
                 ctx.drawImage(mouse.img_e, mouse.x, mouse.y); 
-                // mouse.img.src = "assets/images/mouse_20x20.png";
                 break;
             case "W":
                 ctx.drawImage(mouse.img_w, mouse.x, mouse.y); 
-                // mouse.img.src = "assets/images/mouse_20x20_left.png";
                 break;
         }
         
     }
-    document.addEventListener("keyup", keyUpHandler, true);
-
-    var drawMaze = () => {
+    
+    const drawMaze = () => {
         for (let r = 0; r< gridRowCount; r++){
             for(let c = 0; c< gridRowCount; c++){
                 
@@ -185,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
 
-    var draw = () =>{
+    const draw = () =>{
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze();
         drawMouse();
