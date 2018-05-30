@@ -20,7 +20,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ["NS", "S", "S", "NS", "NS", "NS", "NS", "NES", "NESW", "SW", "ES", "SW", "ES", "NEW", "NSW", "NS"],
         ["NES", "NESW", "NESW", "NESW", "NESW", "NESW", "NESW", "NSW", "NS", "NES", "NSW", "NES", "NSW", "ES", "NSW", "NS"],
         ["N", "N", "N", "N", "N", "N", "N", "NE", "NEW", "NW", "NE", "NW", "NE", "NW", "NE", "NW"]
-     ];   
+     ];
+    // const mazeJSON = [
+    //     ["S", "ES", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "ESW", "EW", "EW", "ESW", "EW", "EW", "SW"],
+    //     ["NS", "NS", "E", "EW", "EW", "EW", "EW", "ESW", "EW", "NEW", "EW", "ESW", "NEW", "EW", "SW", "NS"],
+    //     ["NES", "NW", "ES", "EW", "EW", "EW", "EW", "NEW", "EW", "EW", "SW", "NE", "EW", "SW", "NS", "NS"],
+    //     ["NES", "SW", "NS", "ES", "EW", "EW", "EW", "EW", "EW", "EW", "NEW", "EW", "W", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "ES", "EW", "EW", "W", "E", "EW", "EW", "SW", "S", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "NS", "ES", "EW", "W", "E", "EW", "SW", "NS", "NS", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "NS", "NS", "ES", "EW", "EW", "SW", "NS", "NES", "NSW", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "NS", "NS", "NS", "ES", "SW", "NS", "NS", "NS", "NS", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NES", "NESW", "NESW", "NESW", "NESW", "NEW", "NW", "NS", "NES", "NSW", "NS", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "NS", "NS", "NE", "EW", "ESW", "NW", "NS", "NS", "NS", "NES", "NSW", "NS"],
+    //     ["NS", "NS", "NS", "NS", "N", "N", "E", "EW", "NEW", "EW", "NW", "NS", "NS", "NS", "NS", "NS"],
+    //     ["NS", "NS", "NS", "NS", "E", "EW", "EW", "EW", "ESW", "EW", "EW", "NW", "NS", "NS", "NES", "NSW"],
+    //     ["NES", "NW", "NS", "NE", "EW", "EW", "EW", "EW", "NEW", "EW", "EW", "EW", "NW", "NS", "NS", "NS"],
+    //     ["NES", "SW", "NE", "EW", "EW", "EW", "EW", "EW", "ESW", "EW", "EW", "EW", "W", "N", "N", "NS"],
+    //     ["NS", "NS", "E", "EW", "ESW", "EW", "EW", "W", "NE", "EW", "EW", "EW", "EW", "EW", "EW", "NSW"],
+    //     ["N", "NE", "EW", "EW", "NEW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "NW"]
+    //  ];   
      
     
     const directions = ["N","S","E","W"];
@@ -42,6 +60,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         facing: "S",
         trackX: 0,
         trackY: 0,
+        memory: [],
         goal: false
     }
     let init = () =>{
@@ -120,66 +139,84 @@ document.addEventListener("DOMContentLoaded", (event) => {
             case "W":
                 mouse.faceN();
                 break;
-            }
+        }
     }
+    const turnLeft = () => {
+        switch(mouse.facing){
+            case "N":
+                mouse.faceW();
+                break;
+            case "S":
+                mouse.faceE();
+                break;
+            case "E":
+                mouse.faceN();
+                break;
+            case "W":
+                mouse.faceS();
+                break;
+        }
+    };
     const checkTurnRight = (mouseLocation) =>{
         switch(mouse.facing){
             case "N":
                 if(mouseLocation.openings.indexOf('E') >= 0){
-                    mouse.faceE();
+                    turnRight();
                 }
                 break;
             case "S":
                 if(mouseLocation.openings.indexOf('W') >= 0){
-                    mouse.faceW();
+                    turnRight();
                 }
                 break;
             case "E":
                 if(mouseLocation.openings.indexOf('S') >= 0){
-                    mouse.faceS();
+                    turnRight();
                 }
                 break;
             case "W":
                 if(mouseLocation.openings.indexOf('N') >= 0){
-                    mouse.faceN();
+                    turnRight();
                 }
                 break;
         }
-        prepMoveForward(mouseLocation);
     }
     const rightAlgo = () =>{
         clearInterval(searchingInterval);
         searchingInterval = setInterval(() =>{
             let mouseLocation = grid[mouse.trackY][mouse.trackX];
-            console.log(mouseLocation);
-            if(mouseLocation.openings.indexOf(mouse.facing) >= 0){
+            mouse.memory.push(mouseLocation);
+            if(mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
+                //If there is a right turn, take it.
                 checkTurnRight(mouseLocation); 
             }else if(mouseLocation.openings.indexOf(mouse.facing) < 0){
+                //If we run into a wall turn right.
                 turnRight();
-            }else{
-                prepMoveForward(mouseLocation);
             }
+
+            prepMoveForward(mouseLocation);
             
-        }, 2);
+            
+        }, 500);
     }
 
     const keyUpHandler = (e) =>{
         switch(e.keyCode){
-            // case 38: //UP
-            //     mouse.faceN();
-            //     break;
-            // case 40: //DOWN
-            //     mouse.faceS();
-            //     break;
-            // case 39: //RIGHT
-            //     mouse.faceE();
-            //     break;
-            // case 37: //LEFT
-            //     mouse.faceW();
-            //     break;
-            // case 32: //SPACE
-            //     prepMoveForward();
-            //     break;
+            case 38: //UP
+                mouse.faceN();
+                break;
+            case 40: //DOWN
+                mouse.faceS();
+                break;
+            case 39: //RIGHT
+                mouse.faceE();
+                break;
+            case 37: //LEFT
+                mouse.faceW();
+                break;
+            case 32: //SPACE
+                prepMoveForward();
+                break;
             case 8:
                 clearInterval(searchingInterval);
                 break;
