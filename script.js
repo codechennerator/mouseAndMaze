@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const mazeStartDim = 2;
     const gridColumnCount = mazeJSON[0].length;
     const gridRowCount = mazeJSON.length;
-    const mousePadding = 3;
+    const MOUSE_PADDING = 3;
     let rectHeight = canvas.height/gridRowCount;
     let rectWidth = canvas.width/gridColumnCount;
     
@@ -55,8 +55,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         img_n: new Image(),
         img_e: new Image(),
         img_w: new Image(),
-        x: 0 + mousePadding,
-        y: 0 + mousePadding,
+        x: 0 + MOUSE_PADDING,
+        y: 0 + MOUSE_PADDING,
         facing: "S",
         trackX: 0,
         trackY: 0,
@@ -99,6 +99,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
         mouse.facing = "W";
     }
 
+    const checkLeftExists = (openings) =>{
+        switch(mouse.facing){
+            case "N":
+                return (openings.indexOf("S") > -1);
+            case "S":
+                return (openings.indexOf("N") > -1);
+            case "E":
+                return (openings.indexOf("W") > -1);
+            case "W":
+                return (openings.indexOf("E") > -1);
+        }
+    }
     /**Movement Functions */
     const moveForward = () =>{
         switch(mouse.facing){
@@ -125,7 +137,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             moveForward();
         } 
     }
-    const turnRight = () =>{
+    const turnRight = (mouseLocation) =>{
         switch(mouse.facing){
             case "N":
                 mouse.faceE();
@@ -140,6 +152,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 mouse.faceN();
                 break;
         }
+        if(checkLeftExists(mouseLocation.openings)){
+            mouse.memory.push(mouseLocation); //If we turned right before, push that location. 
+        };
+        
     }
     const turnLeft = () => {
         switch(mouse.facing){
@@ -161,22 +177,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
         switch(mouse.facing){
             case "N":
                 if(mouseLocation.openings.indexOf('E') >= 0){
-                    turnRight();
+                    turnRight(mouseLocation);
+                    return true;
                 }
                 break;
             case "S":
                 if(mouseLocation.openings.indexOf('W') >= 0){
-                    turnRight();
+                    turnRight(mouseLocation);
+                    return true;
                 }
                 break;
             case "E":
                 if(mouseLocation.openings.indexOf('S') >= 0){
-                    turnRight();
+                    turnRight(mouseLocation);
+                    return true;
                 }
                 break;
             case "W":
                 if(mouseLocation.openings.indexOf('N') >= 0){
-                    turnRight();
+                    turnRight(mouseLocation);
+                    return true;
                 }
                 break;
         }
@@ -185,38 +205,47 @@ document.addEventListener("DOMContentLoaded", (event) => {
         clearInterval(searchingInterval);
         searchingInterval = setInterval(() =>{
             let mouseLocation = grid[mouse.trackY][mouse.trackX];
-            mouse.memory.push(mouseLocation);
-            if(mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
+            // if (mouse.memory.indexOf(mouseLocation) > -1){
+            //     prepMoveForward(mouseLocation);
+            // }
+            
+            if(mouseLocation.openings.indexOf(mouse.facing) >= 0 && mouse.memory.indexOf(mouseLocation) > -1 && mouse.memory.lastIndexOf(mouseLocation) !== mouse.memory.indexOf(mouseLocation)){
+                turnLeft();
+            }
+            else if(mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
                 //If there is a right turn, take it.
-                checkTurnRight(mouseLocation); 
+                checkTurnRight(mouseLocation);
+
             }else if(mouseLocation.openings.indexOf(mouse.facing) < 0){
                 //If we run into a wall turn right.
-                turnRight();
+                turnRight(mouseLocation);
             }
-
             prepMoveForward(mouseLocation);
             
+
             
-        }, 500);
+            
+            
+        }, 400);
     }
 
-    const keyUpHandler = (e) =>{
+    function keyUpHandler (e){
         switch(e.keyCode){
-            case 38: //UP
-                mouse.faceN();
-                break;
-            case 40: //DOWN
-                mouse.faceS();
-                break;
-            case 39: //RIGHT
-                mouse.faceE();
-                break;
-            case 37: //LEFT
-                mouse.faceW();
-                break;
-            case 32: //SPACE
-                prepMoveForward();
-                break;
+            // case 38: //UP
+            //     mouse.faceN();
+            //     break;
+            // case 40: //DOWN
+            //     mouse.faceS();
+            //     break;
+            // case 39: //RIGHT
+            //     mouse.faceE();
+            //     break;
+            // case 37: //LEFT
+            //     mouse.faceW();
+            //     break;
+            // case 32: //SPACE
+            //     prepMoveForward();
+            //     break;
             case 8:
                 clearInterval(searchingInterval);
                 break;
@@ -227,6 +256,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
     document.addEventListener("keyup", keyUpHandler, true);
 
+
+// ============================================================Drawing Functions ===================================================
 
     const drawMouse = () =>{
         switch(mouse.facing){
