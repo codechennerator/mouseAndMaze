@@ -102,13 +102,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const checkLeftExists = (openings) =>{
         switch(mouse.facing){
             case "N":
-                return (openings.indexOf("S") > -1);
-            case "S":
-                return (openings.indexOf("N") > -1);
-            case "E":
                 return (openings.indexOf("W") > -1);
-            case "W":
+            case "S":
                 return (openings.indexOf("E") > -1);
+            case "E":
+                return (openings.indexOf("N") > -1);
+            case "W":
+                return (openings.indexOf("S") > -1);
+        }
+    }
+    const checkRightExists = (openings) =>{
+        switch(mouse.facing){
+            case "N":
+                return (openings.indexOf("E") > -1);
+            case "S":
+                return (openings.indexOf("W") > -1);
+            case "E":
+                return (openings.indexOf("S") > -1);
+            case "W":
+                return (openings.indexOf("N") > -1);
         }
     }
     /**Movement Functions */
@@ -134,10 +146,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
     const prepMoveForward = (mouseLocation) => {
         if (mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
+            mouse.memory.push(mouseLocation);
             moveForward();
         } 
     }
-    const turnRight = (mouseLocation) =>{
+    const turnRight = () =>{
         switch(mouse.facing){
             case "N":
                 mouse.faceE();
@@ -152,9 +165,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 mouse.faceN();
                 break;
         }
-        if(checkLeftExists(mouseLocation.openings)){
-            mouse.memory.push(mouseLocation); //If we turned right before, push that location. 
-        };
+
         
     }
     const turnLeft = () => {
@@ -173,60 +184,42 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 break;
         }
     };
-    const checkTurnRight = (mouseLocation) =>{
-        switch(mouse.facing){
-            case "N":
-                if(mouseLocation.openings.indexOf('E') >= 0){
-                    turnRight(mouseLocation);
-                    return true;
-                }
-                break;
-            case "S":
-                if(mouseLocation.openings.indexOf('W') >= 0){
-                    turnRight(mouseLocation);
-                    return true;
-                }
-                break;
-            case "E":
-                if(mouseLocation.openings.indexOf('S') >= 0){
-                    turnRight(mouseLocation);
-                    return true;
-                }
-                break;
-            case "W":
-                if(mouseLocation.openings.indexOf('N') >= 0){
-                    turnRight(mouseLocation);
-                    return true;
-                }
-                break;
-        }
+    const turnAround = () =>{
+        turnRight();
+        turnRight();
     }
     const rightAlgo = () =>{
         clearInterval(searchingInterval);
         searchingInterval = setInterval(() =>{
             let mouseLocation = grid[mouse.trackY][mouse.trackX];
-            // if (mouse.memory.indexOf(mouseLocation) > -1){
-            //     prepMoveForward(mouseLocation);
-            // }
-            
-            if(mouseLocation.openings.indexOf(mouse.facing) >= 0 && mouse.memory.indexOf(mouseLocation) > -1 && mouse.memory.lastIndexOf(mouseLocation) !== mouse.memory.indexOf(mouseLocation)){
-                turnLeft();
+            console.log(mouseLocation);
+            if(mouse.memory.filter(location => location === mouseLocation).length <= 1){
+                if(mouseLocation.openings.indexOf(mouse.facing) <= -1 && !checkLeftExists(mouseLocation.openings) && !checkRightExists(mouseLocation.openings)){
+                    turnAround(); //If complete dead end, turn around.
+                }else if (mouseLocation.openings.indexOf(mouse.facing) <= -1 && checkRightExists(mouseLocation.openings)){
+                    turnRight(); //If you run into a wall, turn right first.
+                }else if (mouseLocation.openings.indexOf(mouse.facing) <= -1 && checkLeftExists(mouseLocation.openings) && !checkRightExists(mouseLocation.openings)){
+                    turnLeft(); //If you run into a wall, and the right turn doesn't exist, turn left. 
+                }else if (checkRightExists(mouseLocation.openings)){
+                    turnRight();
+                }
+            }else if(mouse.memory.indexOf(mouseLocation) >= 0 && mouse.memory.filter(location => location === mouseLocation).length > 1){
+                if(mouseLocation.openings.indexOf(mouse.facing) <= -1 && !checkLeftExists(mouseLocation.openings) && !checkRightExists(mouseLocation.openings)){
+                    turnAround(); //If complete dead end, turn around.
+                }else if (mouseLocation.openings.indexOf(mouse.facing) <= -1 && checkRightExists(mouseLocation.openings)){
+                    turnRight(); //If you run into a wall, turn right first.
+                }else if (mouseLocation.openings.indexOf(mouse.facing) <= -1 && checkLeftExists(mouseLocation.openings) && !checkRightExists(mouseLocation.openings)){
+                    turnLeft(); //If you run into a wall, and the right turn doesn't exist, turn left. 
+                }else if (checkLeftExists(mouseLocation.openings)){
+                    turnLeft();
+                }
             }
-            else if(mouseLocation.openings.indexOf(mouse.facing) >= 0 ){
-                //If there is a right turn, take it.
-                checkTurnRight(mouseLocation);
-
-            }else if(mouseLocation.openings.indexOf(mouse.facing) < 0){
-                //If we run into a wall turn right.
-                turnRight(mouseLocation);
-            }
-            prepMoveForward(mouseLocation);
-            
-
             
             
+            prepMoveForward(mouseLocation); 
             
-        }, 400);
+            
+        }, 200);
     }
 
     function keyUpHandler (e){
