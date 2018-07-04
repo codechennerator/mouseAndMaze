@@ -4,12 +4,14 @@ A software version of the robotics competition Micromouse. The 'mouse' object wi
 Currently I've only implemented a mouse that follows the "right-hand" rule. It prioritized right turns if there is one, but will prioritize left turns if it senses that it's already been in that location more than once. 
 
 ## Known issues
+* Needs to be refactored. Code is getting too long! I also think it would be cool to have a Mouse class and have several of them use different alogrithms to find the goal.
 * Mouse can't sense the goal yet, have to stop the algorithm when it senses the goal.
     * Once the mouse finds the goal it needs to find its way back to the beginning.
     * Once the mouse finds its way back to the beginning, it needs to calculate the best route to the goal again.
 * Mouse programmed to go over the same place TWICE before it starts prioritizing left turns. Makes for a slower finder.
 * Mouse can get stuck in a loop depending on the maze design. (This is a known weakness to the right/left hand rules)
     *  I want to make a "flood-fill" algorithm that mouse competitors use to solve this problem.
+
 
 ## Right hand rule
 ```javascript
