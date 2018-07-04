@@ -10,7 +10,10 @@
 </head>
 <body>
 
-<canvas id="myCanvas" width="400" height="400"></canvas>
+    <h2>Hit 'enter' to start the mouse</h2>
+    <h2>Hit 'backspace' to stop the mouse</h2>
+    <p>Currently the mouse is following a 'right hand rule.' If it senses that there is a right turn to be taken, it will take it first. However, if it senses that it's been on the path twice before, it will start prioritizing left hand turns. This rule causes some strange behavior. Depending on the maze, it can get stuck in an infinite loop, but also it might take right turns when the most optimal turn would have been left.</p>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
 
 <script src="script.js"></script>
 </body>
