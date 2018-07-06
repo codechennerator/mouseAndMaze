@@ -1,7 +1,8 @@
 # mouseAndMaze
-A software version of the robotics competition Micromouse. The 'mouse' object will be able to find its way through any maze, memorize the quickest route, and take it again if necessary.
+* Link: https://codechennerator.github.io/mouseAndMaze/
+* A web imitation of the robotics competition Micromouse. The 'mouse' object will be able to find its way through any maze, memorize the quickest route, and find its way back to the goal.
 
-Currently I've only implemented a mouse that follows the "right-hand" rule. It prioritized right turns if there is one, but will prioritize left turns if it senses that it's already been in that location more than once. 
+* Currently I've only implemented a mouse that follows the "right-hand" rule. It prioritized right turns if there is one, but will prioritize left turns if it senses that it's already been in that location more than once. 
 
 ## Known issues
 * Needs to be refactored. Code is getting too long! I also think it would be cool to have a Mouse class and have several of them use different alogrithms to find the goal to compare speeds.
