@@ -4,7 +4,7 @@ A software version of the robotics competition Micromouse. The 'mouse' object wi
 Currently I've only implemented a mouse that follows the "right-hand" rule. It prioritized right turns if there is one, but will prioritize left turns if it senses that it's already been in that location more than once. 
 
 ## Known issues
-* Needs to be refactored. Code is getting too long! I also think it would be cool to have a Mouse class and have several of them use different alogrithms to find the goal.
+* Needs to be refactored. Code is getting too long! I also think it would be cool to have a Mouse class and have several of them use different alogrithms to find the goal to compare speeds.
 * I have many different mazes in JSON format. I want to be able to select them so the user can change mazes. 
 * Mouse can't sense the goal yet, have to stop the algorithm when it senses the goal.
     * Once the mouse finds the goal it needs to find its way back to the beginning.
