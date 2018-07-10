@@ -1,46 +1,9 @@
 import mazeJSON from "../data/00japan.js";
+import Mouse from "./Mouse.js";
 document.addEventListener("DOMContentLoaded", (event) => {
     let canvas = document.getElementById("myCanvas");
     let ctx = canvas.getContext("2d");
-    let searchingInterval; //Will be the timer interval when enter is hit.
-    //Maze Consts
-    // const mazeJSON = [
-    //     ["ES", "SW", "ES", "SW", "ES", "SW", "ES", "SW", "S", "S", "ES", "ESW", "W", "ES", "EW", "SW"],
-    //     ["NS", "NS", "NS", "NES", "NSW", "NES", "NSW", "NES", "NESW", "NESW", "NW", "NES", "SW", "NE", "SW", "NS"],
-    //     ["NS", "NS", "NS", "N", "NE", "NW", "NE", "NW", "N", "NS", "ES", "NSW", "NES", "SW", "NS", "NS"],
-    //     ["NS", "NS", "NS", "S", "ES", "SW", "S", "ES", "SW", "NE", "NW", "NE", "NSW", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NES", "NW", "NE", "NSW", "NS", "NS", "ES", "EW", "SW", "NE", "NSW", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NES", "EW", "SW", "NE", "NW", "NE", "NW", "ES", "NEW", "EW", "NW", "NS", "NS"],
-    //     ["NS", "NS", "NS", "N", "ES", "NEW", "SW", "ES", "EW", "SW", "NE", "EW", "SW", "ES", "NW", "NS"],
-    //     ["NS", "NS", "NS", "S", "NE", "ESW", "NW", "NES", "SW", "NES", "EW", "EW", "NW", "NE", "SW", "NS"],
-    //     ["NS", "NS", "NES", "NSW", "ES", "NEW", "W", "NES", "NW", "NS", "ES", "SW", "ES", "SW", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "NE", "SW", "S", "NE", "EW", "NEW", "NW", "NE", "NW", "NE", "NW", "NS"],
-    //     ["NS", "NES", "NW", "NES", "SW", "NE", "NESW", "W", "ES", "SW", "ES", "SW", "ES", "SW", "ES", "NW"],
-    //     ["NS", "NS", "ES", "NW", "NE", "EW", "NEW", "W", "NS", "NES", "NW", "NE", "NSW", "NS", "NE", "SW"],
-    //     ["NS", "NE", "NW", "ES", "SW", "ES", "SW", "S", "NES", "NEW", "W", "E", "NEW", "NSW", "S", "NS"],
-    //     ["NS", "S", "S", "NS", "NS", "NS", "NS", "NES", "NESW", "SW", "ES", "SW", "ES", "NEW", "NSW", "NS"],
-    //     ["NES", "NESW", "NESW", "NESW", "NESW", "NESW", "NESW", "NSW", "NS", "NES", "NSW", "NES", "NSW", "ES", "NSW", "NS"],
-    //     ["N", "N", "N", "N", "N", "N", "N", "NE", "NEW", "NW", "NE", "NW", "NE", "NW", "NE", "NW"]
-    //  ];
-    // const mazeJSON = [
-    //     ["S", "ES", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "ESW", "EW", "EW", "ESW", "EW", "EW", "SW"],
-    //     ["NS", "NS", "E", "EW", "EW", "EW", "EW", "ESW", "EW", "NEW", "EW", "ESW", "NEW", "EW", "SW", "NS"],
-    //     ["NES", "NW", "ES", "EW", "EW", "EW", "EW", "NEW", "EW", "EW", "SW", "NE", "EW", "SW", "NS", "NS"],
-    //     ["NES", "SW", "NS", "ES", "EW", "EW", "EW", "EW", "EW", "EW", "NEW", "EW", "W", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "ES", "EW", "EW", "W", "E", "EW", "EW", "SW", "S", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "NS", "ES", "EW", "W", "E", "EW", "SW", "NS", "NS", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "NS", "NS", "ES", "EW", "EW", "SW", "NS", "NES", "NSW", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "NS", "NS", "NS", "ES", "SW", "NS", "NS", "NS", "NS", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NES", "NESW", "NESW", "NESW", "NESW", "NEW", "NW", "NS", "NES", "NSW", "NS", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "NS", "NS", "NE", "EW", "ESW", "NW", "NS", "NS", "NS", "NES", "NSW", "NS"],
-    //     ["NS", "NS", "NS", "NS", "N", "N", "E", "EW", "NEW", "EW", "NW", "NS", "NS", "NS", "NS", "NS"],
-    //     ["NS", "NS", "NS", "NS", "E", "EW", "EW", "EW", "ESW", "EW", "EW", "NW", "NS", "NS", "NES", "NSW"],
-    //     ["NES", "NW", "NS", "NE", "EW", "EW", "EW", "EW", "NEW", "EW", "EW", "EW", "NW", "NS", "NS", "NS"],
-    //     ["NES", "SW", "NE", "EW", "EW", "EW", "EW", "EW", "ESW", "EW", "EW", "EW", "W", "N", "N", "NS"],
-    //     ["NS", "NS", "E", "EW", "ESW", "EW", "EW", "W", "NE", "EW", "EW", "EW", "EW", "EW", "EW", "NSW"],
-    //     ["N", "NE", "EW", "EW", "NEW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "EW", "NW"]
-    //  ];   
-     
+    let searchingInterval; //Will be the timer interval when enter is hit.     
     
     const directions = ["N","S","E","W"];
     const mazeStartDim = 2;
@@ -51,19 +14,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     let rectWidth = canvas.width/gridColumnCount;
     
     //Mouse
-    let mouse = {
-        img_s: new Image(),
-        img_n: new Image(),
-        img_e: new Image(),
-        img_w: new Image(),
-        x: 0 + MOUSE_PADDING,
-        y: 0 + MOUSE_PADDING,
-        facing: "S",
-        trackX: 0,
-        trackY: 0,
-        memory: [],
-        goal: false
-    }
+    let mouse = new Mouse(MOUSE_PADDING);
+    
     let init = () =>{
         mouse.img_s.src = "app/images/mouse_20x20_down.png";
         mouse.img_n.src = "app/images/mouse_20x20_up.png";
