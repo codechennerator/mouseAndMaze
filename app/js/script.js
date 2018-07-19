@@ -1,5 +1,6 @@
 import mazeJSON from "../data/00japan.js";
 import Mouse from "./Mouse.js";
+
 document.addEventListener("DOMContentLoaded", (event) => {
     let canvas = document.getElementById("myCanvas");
     let ctx = canvas.getContext("2d");
@@ -15,7 +16,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     
     //Mouse
     let mouse = new Mouse(MOUSE_PADDING);
-    
+
     let init = () =>{
         mouse.img_s.src = "app/images/mouse_20x20_down.png";
         mouse.img_n.src = "app/images/mouse_20x20_up.png";
